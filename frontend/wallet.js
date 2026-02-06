@@ -169,9 +169,9 @@ async function connectWallet() {
       }
     }
 
-    // Initialize ethers.js
-    provider = new ethers.providers.Web3Provider(window.ethereum);
-    signer = provider.getSigner();
+    // Initialize ethers.js with BrowserProvider (ethers v6)
+    provider = new ethers.BrowserProvider(window.ethereum);
+    signer = await provider.getSigner();
 
     // Initialize contract
     if (CONTRACT_ADDRESS !== "0x0000000000000000000000000000000000000000") {
@@ -215,9 +215,13 @@ async function connectFarcasterWallet() {
       userAddress = window.farcasterMessenger.user.address;
     }
 
-    // Initialize ethers.js with Farcaster's provider
-    provider = new ethers.providers.Web3Provider(window.ethereum || new ethers.providers.JsonRpcProvider(BASE_SEPOLIA_RPC));
-    signer = provider.getSigner();
+    // Initialize ethers.js with Farcaster's provider or RPC fallback
+    if (window.ethereum) {
+      provider = new ethers.BrowserProvider(window.ethereum);
+    } else {
+      provider = new ethers.JsonRpcProvider(BASE_SEPOLIA_RPC);
+    }
+    signer = await provider.getSigner();
 
     // Initialize contract
     if (CONTRACT_ADDRESS !== "0x0000000000000000000000000000000000000000") {
