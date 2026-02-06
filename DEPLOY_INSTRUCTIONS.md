@@ -16,58 +16,35 @@ deploy.sh                  → Interactive deployment helper
 
 ---
 
-## 🚀 **DEPLOY NOW IN 5 STEPS**
+## 🚀 **DEPLOY NOW - MANUAL STEPS**
 
-### Step 1: Get Your Private Key (2 min)
+### Step 1: Create .env File (1 min)
 
-1. **Open MetaMask** extension in browser
-2. Click your **account icon** (top right)
-3. Select **Settings**
-4. Go to **Security & Privacy**
-5. Click **Show Private Key**
-6. Enter your password
-7. **Copy** the private key (it's a long hex string)
-8. **Paste it somewhere safe** (you'll need it next)
+In your project root, create a file named `.env` with your wallet private key.
 
-⚠️ **IMPORTANT**: 
+**⚠️ SECURITY**: 
+- Never commit `.env` to GitHub (already in `.gitignore`)
 - Never share your private key
-- Don't commit it to GitHub
-- The `.env` file is already in `.gitignore`
+- Delete `.env` after deployment
 
 ---
 
-### Step 2: Create .env File (1 min)
-
-In your project root directory, create a file named `.env` (no extension):
-
-```
-PRIVATE_KEY=your_private_key_from_metamask
-```
-
-That's it! Just paste your private key (without 0x prefix).
-
----
-
-### Step 3: Ensure You Have Base Sepolia Testnet ETH (1 min)
+### Step 2: Ensure You Have Base Sepolia Testnet ETH (1 min)
 
 You need some testnet ETH to pay for contract deployment gas.
 
-**Option A: Free Faucet** (recommended)
+**Get Free Testnet ETH:**
 - Go to https://faucet.base.org
 - Paste your wallet address
 - Verify and claim testnet ETH
 
-**Option B: Use Existing Testnet ETH**
-- If you already have Base Sepolia ETH, you're good!
-
-**Check balance**:
-- Open MetaMask
+**Check balance in MetaMask:**
 - Switch to Base Sepolia network
 - Check ETH balance in wallet
 
 ---
 
-### Step 4: Run the Deployment (1 min)
+### Step 3: Run Deployment (1 min)
 
 From your project root:
 
@@ -99,7 +76,7 @@ chmod +x deploy.sh
 
 ---
 
-### Step 5: Update Frontend (1 min)
+### Step 4: Update Frontend (1 min)
 
 1. **Copy** the contract address from Step 4
 2. Open `frontend/wallet.js`
@@ -115,12 +92,15 @@ chmod +x deploy.sh
 
 ---
 
-### Step 6: Commit & Push (1 min)
+### Step 5: Commit & Push (1 min)
 
 ```bash
-# Make sure NOT to commit .env (already in .gitignore)
-git add frontend/wallet.js deployment.json contracts/ scripts/
-git commit -m "Deploy JumpGame smart contract to Base Sepolia"
+# Remove .env before committing (IMPORTANT!)
+rm .env
+
+# Commit changes
+git add frontend/wallet.js deployment.json
+git commit -m "Deploy JumpGame contract to Base Sepolia"
 git push origin main
 ```
 

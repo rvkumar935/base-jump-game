@@ -9,45 +9,31 @@
 
 ---
 
-## Step 1: Get Your Private Key (2 minutes)
+## Step 1: Create .env File (1 minute)
 
-1. **Open MetaMask**
-2. Click your account → **Settings**
-3. Go to **Security & Privacy**
-4. Click **Show Private Key**
-5. Enter your password
-6. **Copy your private key** (WITHOUT the 0x prefix)
-⚠️ **NEVER share this or commit it to GitHub!**
+In your project root, create a `.env` file with your wallet's private key.
 
----
-
-## Step 2: Create .env File (1 minute)
-
-1. In project root, create a file named `.env`
-2. Paste this (replace with YOUR private key):
-```
-PRIVATE_KEY=your_private_key_here_without_0x
-```
-
-3. Save the file
-4. ✅ The .gitignore already protects it from being committed
+⚠️ **SECURITY CRITICAL**: 
+- Never share your private key
+- Never commit `.env` to Git (it's in `.gitignore`)
+- Delete `.env` after deployment
 
 ---
 
-## Step 3: Install Hardhat (1 minute)
+## Step 2: Verify Base Sepolia Testnet ETH (1 minute)
 
-```bash
-npm install
-```
+Check your MetaMask:
+1. Switch to **Base Sepolia** network
+2. Verify you have ETH in your wallet
 
-This installs:
-- Hardhat (Ethereum development framework)
-- Ethers.js (blockchain interaction)
-- TypeChain tools
+**Don't have testnet ETH?**
+→ Go to https://faucet.base.org and claim some (free!)
 
 ---
 
-## Step 4: Deploy the Contract (1 minute)
+## Step 3: Deploy the Contract (1 minute)
+
+Run the deployment script:
 
 ```bash
 npm run deploy
@@ -76,9 +62,9 @@ This will:
 
 ---
 
-## Step 5: Update Frontend (1 minute)
+## Step 4: Update Frontend (1 minute)
 
-1. **Copy the contract address** from step 4
+1. **Copy the contract address** from step 3
 2. Open [frontend/wallet.js](frontend/wallet.js)
 3. Find line 10:
    ```javascript
@@ -91,10 +77,10 @@ This will:
 
 ---
 
-## Step 6: Commit and Push
+## Step 5: Commit and Push
 
 ```bash
-# Remove .env (should already be in .gitignore)
+# Remove .env before committing
 rm .env
 
 # Commit the contract address update
@@ -112,17 +98,8 @@ git push origin main
 ### "Error: not enough ether"
 → Your testnet balance is too low. Get more Base Sepolia ETH from https://faucet.base.org
 
-### "Error: Invalid private key"
-→ Make sure:
-- No `0x` prefix
-- Exactly 64 hex characters
-- From MetaMask (not a seed phrase)
-
-### "Contract compilation failed"
-→ Solidity version mismatch. Check [hardhat.config.js](hardhat.config.js) has version `0.8.19`
-
 ### "Network error"
-→ Base Sepolia RPC endpoint issue. Check your internet connection.
+→ Check your internet connection and try again.
 
 ---
 
