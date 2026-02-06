@@ -3,11 +3,40 @@ let provider;
 let signer;
 let jumpGameContract;
 let leaderboardClient;
+let isMiniApp = false;
+let miniAppType = null; // 'farcaster' or 'base'
 
 // Replace with your deployed contract address
 const CONTRACT_ADDRESS = "0x0000000000000000000000000000000000000000"; // Deploy first, then update
 const BASE_SEPOLIA_RPC = "https://sepolia.base.org";
 const LEADERBOARD_API = process.env.REACT_APP_LEADERBOARD_API || "http://localhost:3000";
+
+// Detect mini app environment
+function detectMiniAppEnvironment() {
+  // Check for Farcaster Frames/mini app
+  if (window.parent !== window || window.location.pathname.includes('/frames')) {
+    if (window.farcasterMessenger) {
+      isMiniApp = true;
+      miniAppType = 'farcaster';
+      console.log('🎭 Farcaster mini app detected');
+      return true;
+    }
+  }
+
+  // Check for Base mini app (injected context)
+  if (window.ethereum?.isBase || window.ethereum?.isCoinbaseWallet) {
+    return false; // Will use standard MetaMask flow
+  }
+
+  // Check for Degen Chain (Farcaster context)
+  if (document.currentScript?.src?.includes('farcaster')) {
+    isMiniApp = true;
+    miniAppType = 'farcaster';
+    return true;
+  }
+
+  return false;
+}
 
 // Minimal JumpGame ABI
 const JUMP_GAME_ABI = [
@@ -67,12 +96,21 @@ const JUMP_GAME_ABI = [
 ];
 
 async function connectWallet() {
-  if (!window.ethereum) {
-    alert("❌ Install MetaMask or Coinbase Wallet");
-    return;
-  }
-
   try {
+    detectMiniAppEnvironment();
+
+    // Try Farcaster/mini app first if detected
+    if (isMiniApp && miniAppType === 'farcaster') {
+      await connectFarcasterWallet();
+      return;
+    }
+
+    // Standard MetaMask/EIP-1193 flow
+    if (!window.ethereum) {
+      alert("❌ Install MetaMask, Coinbase Wallet, or use a mini app");
+      return;
+    }
+
     // Request account access
     const accounts = await window.ethereum.request({
       method: "eth_requestAccounts",
@@ -140,6 +178,52 @@ async function connectWallet() {
   } catch (error) {
     console.error("❌ Wallet connection failed:", error);
     alert("Failed to connect wallet: " + error.message);
+  }
+}
+
+// Farcaster mini app wallet connection
+async function connectFarcasterWallet() {
+  try {
+    // For Farcaster frames, we typically get user context from the frame
+    // This requires the frame to provide the user's FID and signature
+    
+    if (!window.farcasterMessenger?.user?.address) {
+      // Fallback: try to get from Degen chain provider if available
+      if (!window.ethereum) {
+        alert("❌ Farcaster wallet not available in this context");
+        return;
+      }
+      
+      // Use injected provider from Farcaster frame
+      const accounts = await window.ethereum.request({
+        method: "eth_requestAccounts",
+      });
+      userAddress = accounts[0];
+    } else {
+      userAddress = window.farcasterMessenger.user.address;
+    }
+
+    // Initialize ethers.js with Farcaster's provider
+    provider = new ethers.providers.Web3Provider(window.ethereum || new ethers.providers.JsonRpcProvider(BASE_SEPOLIA_RPC));
+    signer = provider.getSigner();
+
+    // Initialize contract
+    if (CONTRACT_ADDRESS !== "0x0000000000000000000000000000000000000000") {
+      jumpGameContract = new ethers.Contract(
+        CONTRACT_ADDRESS,
+        JUMP_GAME_ABI,
+        signer
+      );
+    }
+
+    // Initialize leaderboard client
+    leaderboardClient = new LeaderboardClient(LEADERBOARD_API);
+
+    updateWalletStatus();
+    console.log("✅ Farcaster wallet connected:", userAddress);
+  } catch (error) {
+    console.error("❌ Farcaster wallet connection failed:", error);
+    throw error;
   }
 }
 
@@ -250,16 +334,36 @@ async function getTopPlayers(limit = 50) {
   }
 }
 
-// Event listeners
-document.getElementById("connect").onclick = connectWallet;
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', () => {
+  detectMiniAppEnvironment();
+  console.log(`Environment: ${isMiniApp ? miniAppType + ' mini app' : 'standard web'}`);
+  
+  // Set connect button handler
+  const connectBtn = document.getElementById("connect");
+  if (connectBtn) {
+    connectBtn.onclick = connectWallet;
+  }
+});
+
+// Alternative: direct click handler registration (for early execution)
+if (document.readyState !== 'loading') {
+  detectMiniAppEnvironment();
+  const connectBtn = document.getElementById("connect");
+  if (connectBtn) {
+    connectBtn.onclick = connectWallet;
+  }
+}
 
 // Handle network changes
 if (window.ethereum) {
   window.ethereum.on("accountsChanged", () => {
+    console.log("Accounts changed, reloading...");
     location.reload();
   });
 
   window.ethereum.on("chainChanged", () => {
+    console.log("Chain changed, reloading...");
     location.reload();
   });
 }
