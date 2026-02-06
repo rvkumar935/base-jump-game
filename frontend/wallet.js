@@ -307,7 +307,8 @@ function updateWalletStatus() {
     connectBtn.innerText = `Disconnect (${displayAddress})`;
     connectBtn.style.background = "#ff6b6b";
     connectBtn.style.color = "#ffffff";
-    connectBtn.onclick = disconnectWallet;
+    connectBtn.style.cursor = "pointer";
+    connectBtn.onclick = disconnectWallet;  // ALWAYS SET HANDLER
     console.log("✅ Button updated to disconnect mode");
   } else {
     // Not connected - show connect button
@@ -319,17 +320,25 @@ function updateWalletStatus() {
     connectBtn.innerText = "Connect Wallet";
     connectBtn.style.background = "#00ff00";
     connectBtn.style.color = "#000";
-    connectBtn.onclick = connectWallet;
+    connectBtn.style.cursor = "pointer";
+    connectBtn.onclick = connectWallet;  // ALWAYS SET HANDLER
     console.log("✅ Button reset to connect mode");
   }
 }
 
 function disconnectWallet() {
+  console.log("Disconnecting wallet...");
   userAddress = null;
   provider = null;
   signer = null;
   jumpGameContract = null;
   leaderboardClient = null;
+  
+  // Force reinitialize button handlers
+  const connectBtn = document.getElementById("connect");
+  if (connectBtn) {
+    connectBtn.onclick = connectWallet;
+  }
   
   updateWalletStatus();
   console.log("Wallet disconnected");
@@ -458,11 +467,21 @@ if (document.readyState === 'loading') {
   initializeWallet();
 }
 
-// Handle network changes
+// Handle network changes - DON'T reload on accountsChanged
 if (window.ethereum) {
-  window.ethereum.on("accountsChanged", () => {
-    console.log("Accounts changed, reloading...");
-    location.reload();
+  window.ethereum.on("accountsChanged", (accounts) => {
+    console.log("Accounts changed:", accounts);
+    if (accounts.length === 0) {
+      // User disconnected wallet
+      console.log("User disconnected wallet");
+      userAddress = null;
+      updateWalletStatus();
+    } else {
+      // User switched accounts
+      userAddress = accounts[0];
+      console.log("Switched to account:", userAddress);
+      updateWalletStatus();
+    }
   });
 
   window.ethereum.on("chainChanged", () => {
