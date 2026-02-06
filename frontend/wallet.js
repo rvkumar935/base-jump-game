@@ -38,7 +38,7 @@ function waitForEthers(callback, attempts = 0) {
   }
 }
 
-// Wait for ethers - async version
+// Wait for ethers - async version FIXED
 async function waitForEthersAsync(attempts = 0) {
   if (typeof ethers !== 'undefined') {
     return true;
@@ -47,7 +47,7 @@ async function waitForEthersAsync(attempts = 0) {
     throw new Error('ethers.js failed to load after 5 seconds');
   }
   await new Promise(resolve => setTimeout(resolve, 50));
-  return waitForEthersAsync(attempts + 1);
+  return await waitForEthersAsync(attempts + 1);
 }
 
 // Detect mini app environment

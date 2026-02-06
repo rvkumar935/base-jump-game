@@ -195,11 +195,16 @@
     setInterval(loadGlobalStats, 30000);
   });
 
-  const leaderboardClient = new LeaderboardClient();
+  // Initialize leaderboard client if not already initialized (use global if exists, else create new)
+  if (typeof leaderboardClient === 'undefined') {
+    window.leaderboardClient = new LeaderboardClient();
+  } else {
+    window.leaderboardClient = leaderboardClient;
+  }
 
   async function refreshLeaderboard() {
     try {
-      const data = await leaderboardClient.getLeaderboard(50);
+      const data = await window.leaderboardClient.getLeaderboard(50);
       const tbody = document.getElementById('leaderboard-body');
 
       if (!data.leaderboard || data.leaderboard.length === 0) {
@@ -229,7 +234,7 @@
 
   async function loadGlobalStats() {
     try {
-      const data = await leaderboardClient.getGlobalStats();
+      const data = await window.leaderboardClient.getGlobalStats();
       const statsData = data.stats || {};
 
       document.getElementById('global-stats').innerHTML = `
@@ -262,7 +267,7 @@
     }
 
     try {
-      const data = await leaderboardClient.getPlayerStats(userAddress);
+      const data = await window.leaderboardClient.getPlayerStats(userAddress);
       const player = data.player;
 
       document.getElementById('player-rank').innerText = player.rank ? `#${player.rank}` : '-';
