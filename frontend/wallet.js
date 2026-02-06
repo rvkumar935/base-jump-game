@@ -9,9 +9,24 @@ let miniAppType = null; // 'farcaster' or 'base'
 // Replace with your deployed contract address
 const CONTRACT_ADDRESS = "0x0000000000000000000000000000000000000000"; // Deploy first, then update
 const BASE_SEPOLIA_RPC = "https://sepolia.base.org";
-const LEADERBOARD_API = process.env.REACT_APP_LEADERBOARD_API || "http://localhost:3000";
 
-// Wait for ethers to be loaded
+// Get leaderboard API URL - works in both browser and Node.js
+function getLeaderboardAPI() {
+  // Try window context first (browser)
+  if (typeof window !== 'undefined' && window.LEADERBOARD_API) {
+    return window.LEADERBOARD_API;
+  }
+  // Try process.env (Node.js/build time)
+  if (typeof process !== 'undefined' && process.env?.REACT_APP_LEADERBOARD_API) {
+    return process.env.REACT_APP_LEADERBOARD_API;
+  }
+  // Default
+  return "http://localhost:3000";
+}
+
+const LEADERBOARD_API = getLeaderboardAPI();
+
+// Wait for ethers to be loaded (synchronous for backwards compat)
 function waitForEthers(callback, attempts = 0) {
   if (typeof ethers !== 'undefined') {
     callback();
@@ -21,6 +36,18 @@ function waitForEthers(callback, attempts = 0) {
     console.error('❌ ethers.js failed to load after 5 seconds');
     alert('❌ Failed to load ethers.js library. Please reload the page.');
   }
+}
+
+// Wait for ethers - async version
+async function waitForEthersAsync(attempts = 0) {
+  if (typeof ethers !== 'undefined') {
+    return true;
+  }
+  if (attempts >= 100) {
+    throw new Error('ethers.js failed to load after 5 seconds');
+  }
+  await new Promise(resolve => setTimeout(resolve, 50));
+  return waitForEthersAsync(attempts + 1);
 }
 
 // Detect mini app environment
@@ -109,6 +136,9 @@ const JUMP_GAME_ABI = [
 
 async function connectWallet() {
   try {
+    // Wait for ethers to be available
+    await waitForEthersAsync();
+    
     detectMiniAppEnvironment();
 
     // Try Farcaster/mini app first if detected
@@ -196,6 +226,9 @@ async function connectWallet() {
 // Farcaster mini app wallet connection
 async function connectFarcasterWallet() {
   try {
+    // Ensure ethers is available
+    await waitForEthersAsync();
+    
     // For Farcaster frames, we typically get user context from the frame
     // This requires the frame to provide the user's FID and signature
     
@@ -359,18 +392,19 @@ function initializeWallet() {
   const connectBtn = document.getElementById("connect");
   if (connectBtn) {
     connectBtn.onclick = connectWallet;
-    console.log('✅ Connect button initialized');
+    console.log('✅ Connect button initialized and ready');
+  } else {
+    console.warn('⚠️ Connect button not found in DOM');
   }
 }
 
-// Wait for ethers to load, then initialize
-waitForEthers(() => {
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initializeWallet);
-  } else {
-    initializeWallet();
-  }
-});
+// Initialize once DOM is ready
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initializeWallet);
+} else {
+  // DOM already loaded
+  initializeWallet();
+}
 
 // Handle network changes
 if (window.ethereum) {
