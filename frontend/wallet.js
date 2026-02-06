@@ -278,10 +278,46 @@ async function connectFarcasterWallet() {
 
 function updateWalletStatus() {
   const statusEl = document.getElementById("wallet-status");
-  if (statusEl && userAddress) {
-    statusEl.innerText = "✅ Connected: " + userAddress.slice(0, 6) + "..." + userAddress.slice(-4);
-    statusEl.style.color = "#00ff00";
+  const connectBtn = document.getElementById("connect");
+  
+  if (userAddress) {
+    // Update status display
+    if (statusEl) {
+      statusEl.innerText = "✅ Connected: " + userAddress.slice(0, 6) + "..." + userAddress.slice(-4);
+      statusEl.style.color = "#00ff00";
+    }
+    
+    // Update button to show address and allow disconnect
+    if (connectBtn) {
+      connectBtn.innerText = `Disconnect (${userAddress.slice(0, 6)}...)`;
+      connectBtn.style.background = "#ff6b6b";
+      connectBtn.onclick = disconnectWallet;
+    }
+  } else {
+    // Not connected - show connect button
+    if (statusEl) {
+      statusEl.innerText = "Not connected";
+      statusEl.style.color = "#888";
+    }
+    
+    if (connectBtn) {
+      connectBtn.innerText = "Connect Wallet";
+      connectBtn.style.background = "#00ff00";
+      connectBtn.style.color = "#000";
+      connectBtn.onclick = connectWallet;
+    }
   }
+}
+
+function disconnectWallet() {
+  userAddress = null;
+  provider = null;
+  signer = null;
+  jumpGameContract = null;
+  leaderboardClient = null;
+  
+  updateWalletStatus();
+  console.log("Wallet disconnected");
 }
 
 // Contract interaction functions
@@ -388,10 +424,11 @@ function initializeWallet() {
   detectMiniAppEnvironment();
   console.log(`Environment: ${isMiniApp ? miniAppType + ' mini app' : 'standard web'}`);
   
-  // Set connect button handler
+  // Set connect button handler and update status
+  updateWalletStatus();
+  
   const connectBtn = document.getElementById("connect");
   if (connectBtn) {
-    connectBtn.onclick = connectWallet;
     console.log('✅ Connect button initialized and ready');
   } else {
     console.warn('⚠️ Connect button not found in DOM');
