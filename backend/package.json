@@ -1,0 +1,16 @@
+{
+  "name": "base-jump-game-backend",
+  "version": "1.0.0",
+  "description": "Leaderboard backend for Base Jump Game",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "sqlite3": "^5.1.6",
+    "dotenv": "^16.0.3"
+  }
+}

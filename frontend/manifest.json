@@ -1,0 +1,74 @@
+// Base Mini App Manifest
+// Add this to manifest.json for PWA capabilities
+
+{
+  "name": "Base Jump Game",
+  "short_name": "Base Jump",
+  "description": "Earn XP and compete on the leaderboard. Play 1-minute jump runs on Base blockchain.",
+  "start_url": "/",
+  "display": "fullscreen",
+  "scope": "/",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 192 192%22><rect fill=%22%230a0a0a%22 width=%22192%22 height=%22192%22/><text x=%2296%22 y=%22120%22 font-size=%22100%22 text-anchor=%22middle%22 dominant-baseline=%22middle%22>🏃</text></svg>",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 512 512%22><rect fill=%220055FF%22 width=%22512%22 height=%22512%22/><text x=%22256%22 y=%22320%22 font-size=%22250%22 text-anchor=%22middle%22 dominant-baseline=%22middle%22>🏃</text></svg>",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ],
+  "categories": ["games"],
+  "screenshots": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 540 720%22><rect fill=%220a0a0a%22 width=%22540%22 height=%22720%22/><text x=%22270%22 y=%22360%22 font-size=%22100%22 text-anchor=%22middle%22>🏃 Game</text></svg>",
+      "sizes": "540x720",
+      "type": "image/svg+xml",
+      "form_factor": "narrow"
+    }
+  ],
+  "theme_color": "#0055FF",
+  "background_color": "#0a0a0a",
+  "shortcuts": [
+    {
+      "name": "Play Game",
+      "short_name": "Play",
+      "description": "Start a new game",
+      "url": "/?mode=play",
+      "icons": [
+        {
+          "src": "data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 96 96%22><circle cx=%2248%22 cy=%2248%22 r=%2745%22 fill=%220055FF%22/><polygon points=%2240,30 70,48 40,66%22 fill=%22white%22/></svg>",
+          "sizes": "96x96",
+          "type": "image/svg+xml"
+        }
+      ]
+    },
+    {
+      "name": "View Leaderboard",
+      "short_name": "Leaderboard",
+      "description": "Check your rank",
+      "url": "/leaderboard.html",
+      "icons": [
+        {
+          "src": "data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 96 96%22><circle cx=%2248%22 cy=%2248%22 r=%2745%22 fill=%22FFD700%22/><text x=%2248%22 y=%2255%22 font-size=%2250%22 text-anchor=%22middle%22>🏆</text></svg>",
+          "sizes": "96x96",
+          "type": "image/svg+xml"
+        }
+      ]
+    }
+  ],
+  "share_target": {
+    "action": "/share",
+    "method": "POST",
+    "enctype": "application/x-www-form-urlencoded",
+    "params": {
+      "title": "title",
+      "text": "text"
+    }
+  }
+}

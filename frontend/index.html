@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#0055FF">
+  <meta name="description" content="Earn XP and compete on the leaderboard. Play 1-minute jump runs on Base blockchain.">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Base Jump">
+  
+  <title>Base Jump Game</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22><text x=%2216%22 y=%2232%22 font-size=%2232%22>🏃</text></svg>">
+  
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/phaser@3/dist/phaser.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/ethers@6/dist/ethers.umd.js"></script>
+  
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      width: 100%;
+      overflow: hidden;
+    }
+    
+    body {
+      touch-action: manipulation;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+  </style>
+</head>
+<body>
+
+<h2>🏃 Base Jump Game</h2>
+
+<div id="wallet-status" style="margin: 10px; font-size: 14px; color: #888;">Not connected</div>
+<div id="player-xp-display" style="margin: 10px; font-size: 14px; color: #ffd700; font-weight: bold;">Level 1 • 0 XP</div>
+
+<div id="xp-bar" style="width: 300px; height: 20px; background: #222; border: 2px solid #00ff00; margin: 10px auto; border-radius: 4px;">
+  <div id="xp-progress" style="height: 100%; background: linear-gradient(90deg, #00ff00, #ffaa00); width: 0%; border-radius: 2px; transition: width 0.3s;"></div>
+</div>
+<div id="xp-to-next" style="font-size: 12px; color: #888; margin: 5px; text-align: center;">0 XP to next level</div>
+
+<div style="margin: 10px;">
+  <button id="connect" style="padding: 10px 20px; margin: 5px; cursor: pointer;">Connect Wallet</button>
+  <button id="start" style="padding: 10px 20px; margin: 5px; cursor: pointer;">Start Game</button>
+  <button onclick="location.href='leaderboard.html'" style="padding: 10px 20px; margin: 5px; cursor: pointer;">View Leaderboard</button>
+</div>
+
+<div id="timer" style="margin: 10px; font-size: 16px; color: #ffd700; font-weight: bold;">⏱️ Time: 0s</div>
+
+<div id="game" style="margin-top: 20px;"></div>
+<div id="score-display" style="margin-top: 10px; font-size: 18px; color: #00ff00;">Score: 0</div>
+
+<script src="config.js"></script>
+<script src="anti-bot.js"></script>
+<script src="wallet.js"></script>
+<script src="xp-system.js"></script>
+<script src="leaderboard.js"></script>
+<script src="game.js"></script>
+
+<script>
+  // Register Service Worker for PWA support
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('service-worker.js')
+      .then(reg => console.log('✅ Service worker registered'))
+      .catch(err => console.log('⚠️ Service worker registration failed:', err));
+  }
+
+  // Prevent zoom on double tap
+  document.addEventListener('touchmove', e => {
+    if (e.touches.length > 1) e.preventDefault();
+  }, { passive: false });
+
+  // Prevent context menu on long press
+  document.addEventListener('contextmenu', e => e.preventDefault());
+</script>
+
+</body>
+</html>
