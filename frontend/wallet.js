@@ -7,7 +7,7 @@ let leaderboardClient;
 // Replace with your deployed contract address
 const CONTRACT_ADDRESS = "0x0000000000000000000000000000000000000000"; // Deploy first, then update
 const BASE_SEPOLIA_RPC = "https://sepolia.base.org";
-const LEADERBOARD_API = "http://localhost:3000"; // Update for production
+const LEADERBOARD_API = process.env.REACT_APP_LEADERBOARD_API || "http://localhost:3000";
 
 // Minimal JumpGame ABI
 const JUMP_GAME_ABI = [
