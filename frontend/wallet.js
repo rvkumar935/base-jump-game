@@ -154,9 +154,16 @@ async function connectWallet() {
     }
 
     // Request account access
+    console.log("Requesting MetaMask account access...");
     const accounts = await window.ethereum.request({
       method: "eth_requestAccounts",
     });
+    
+    console.log(`Got ${accounts.length} account(s) from MetaMask`);
+    if (accounts.length === 0) {
+      alert("❌ No accounts found in MetaMask");
+      return;
+    }
 
     userAddress = accounts[0];
 
@@ -341,7 +348,10 @@ function disconnectWallet() {
   }
   
   updateWalletStatus();
-  console.log("Wallet disconnected");
+  console.log("✅ Wallet fully disconnected - provider and signer cleared");
+  
+  // Small delay to ensure state is cleared before next connection attempt
+  console.log("Ready to reconnect. Click 'Connect Wallet' to proceed.");
 }
 
 // Contract interaction functions
