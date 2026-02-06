@@ -5,22 +5,14 @@
   "scripts": {
     "build": "cd frontend && npm run build || exit 0",
     "start": "cd frontend && python3 -m http.server 8000 || cd frontend && npm start",
-    "dev": "cd backend && npm start & cd frontend && npm start",
-    "deploy": "hardhat run scripts/deploy.js --network baseSepolia",
-    "compile": "hardhat compile"
-  },
-  "devDependencies": {
-    "@nomicfoundation/hardhat-toolbox": "^4.0.0",
-    "hardhat": "^2.20.0",
-    "dotenv": "^16.3.1"
+    "dev": "cd backend && npm start & cd frontend && npm start"
   },
   "keywords": [
     "base",
     "web3",
     "game",
     "blockchain",
-    "solidity",
-    "hardhat"
+    "phaser"
   ],
   "author": "Ravi Kumar",
   "license": "MIT"

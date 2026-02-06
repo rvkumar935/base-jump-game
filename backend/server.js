@@ -15,6 +15,7 @@ const dbPath = path.join(__dirname, 'leaderboard.db');
 const db = new sqlite3.Database(dbPath, (err) => {
   if (err) {
     console.error('❌ Database error:', err.message);
+    process.exit(1);
   } else {
     console.log('✅ Database connected');
     initDatabase();
@@ -23,29 +24,40 @@ const db = new sqlite3.Database(dbPath, (err) => {
 
 // Initialize database tables
 function initDatabase() {
-  db.run(`
-    CREATE TABLE IF NOT EXISTS scores (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      address TEXT NOT NULL UNIQUE,
-      best_score INTEGER DEFAULT 0,
-      xp INTEGER DEFAULT 0,
-      total_runs INTEGER DEFAULT 0,
-      total_jumps INTEGER DEFAULT 0,
-      timestamp INTEGER DEFAULT 0,
-      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
-    )
-  `, (err) => {
-    if (err) console.error('❌ Table creation error:', err.message);
-    else console.log('✅ Database tables initialized');
+  // Create main scores table
+  db.serialize(() => {
+    db.run(`
+      CREATE TABLE IF NOT EXISTS scores (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        address TEXT NOT NULL UNIQUE,
+        best_score INTEGER DEFAULT 0,
+        xp INTEGER DEFAULT 0,
+        total_runs INTEGER DEFAULT 0,
+        total_jumps INTEGER DEFAULT 0,
+        timestamp INTEGER DEFAULT 0,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      )
+    `, (err) => {
+      if (err) console.error('❌ Table creation error:', err.message);
+      else console.log('✅ Scores table initialized');
+    });
+
+    db.run(`
+      CREATE INDEX IF NOT EXISTS idx_address ON scores(address)
+    `, (err) => {
+      if (err && !err.message.includes('already exists')) {
+        console.error('❌ Index creation error:', err.message);
+      }
+    });
+
+    db.run(`
+      CREATE INDEX IF NOT EXISTS idx_best_score ON scores(best_score DESC)
+    `, (err) => {
+      if (err && !err.message.includes('already exists')) {
+        console.error('❌ Index creation error:', err.message);
+      }
+    });
   });
-
-  db.run(`
-    CREATE INDEX IF NOT EXISTS idx_address ON scores(address)
-  `);
-
-  db.run(`
-    CREATE INDEX IF NOT EXISTS idx_best_score ON scores(best_score DESC)
-  `);
 }
 
 // ============ API ROUTES ============
@@ -229,11 +241,13 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Internal server error' });
 });
 
-// Start server
-app.listen(PORT, () => {
-  console.log(`🚀 Leaderboard server running on http://localhost:${PORT}`);
-  console.log(`📊 Database: ${dbPath}`);
-});
+// Wait a moment for database initialization, then start server
+setTimeout(() => {
+  app.listen(PORT, () => {
+    console.log(`🚀 Leaderboard server running on http://localhost:${PORT}`);
+    console.log(`📊 Database: ${dbPath}`);
+  });
+}, 1000);
 
 // Graceful shutdown
 process.on('SIGINT', () => {
