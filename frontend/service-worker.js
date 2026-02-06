@@ -32,6 +32,10 @@ self.addEventListener('fetch', event => {
   // Only cache GET requests
   if (event.request.method !== 'GET') return;
 
+  // Skip requests with unsupported schemes (chrome-extension, etc)
+  const url = new URL(event.request.url);
+  if (!url.protocol.startsWith('http')) return;
+
   event.respondWith(
     caches.match(event.request).then(response => {
       if (response) return response;
@@ -44,7 +48,9 @@ self.addEventListener('fetch', event => {
 
         const responseToCache = fetchResponse.clone();
         caches.open(CACHE_NAME).then(cache => {
-          cache.put(event.request, responseToCache);
+          cache.put(event.request, responseToCache).catch(err => {
+            // Silently fail - some URLs can't be cached
+          });
         });
 
         return fetchResponse;
