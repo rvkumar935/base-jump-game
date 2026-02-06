@@ -11,6 +11,18 @@ const CONTRACT_ADDRESS = "0x0000000000000000000000000000000000000000"; // Deploy
 const BASE_SEPOLIA_RPC = "https://sepolia.base.org";
 const LEADERBOARD_API = process.env.REACT_APP_LEADERBOARD_API || "http://localhost:3000";
 
+// Wait for ethers to be loaded
+function waitForEthers(callback, attempts = 0) {
+  if (typeof ethers !== 'undefined') {
+    callback();
+  } else if (attempts < 100) {
+    setTimeout(() => waitForEthers(callback, attempts + 1), 50);
+  } else {
+    console.error('❌ ethers.js failed to load after 5 seconds');
+    alert('❌ Failed to load ethers.js library. Please reload the page.');
+  }
+}
+
 // Detect mini app environment
 function detectMiniAppEnvironment() {
   // Check for Farcaster Frames/mini app
@@ -335,7 +347,7 @@ async function getTopPlayers(limit = 50) {
 }
 
 // Initialize on page load
-document.addEventListener('DOMContentLoaded', () => {
+function initializeWallet() {
   detectMiniAppEnvironment();
   console.log(`Environment: ${isMiniApp ? miniAppType + ' mini app' : 'standard web'}`);
   
@@ -343,17 +355,18 @@ document.addEventListener('DOMContentLoaded', () => {
   const connectBtn = document.getElementById("connect");
   if (connectBtn) {
     connectBtn.onclick = connectWallet;
-  }
-});
-
-// Alternative: direct click handler registration (for early execution)
-if (document.readyState !== 'loading') {
-  detectMiniAppEnvironment();
-  const connectBtn = document.getElementById("connect");
-  if (connectBtn) {
-    connectBtn.onclick = connectWallet;
+    console.log('✅ Connect button initialized');
   }
 }
+
+// Wait for ethers to load, then initialize
+waitForEthers(() => {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeWallet);
+  } else {
+    initializeWallet();
+  }
+});
 
 // Handle network changes
 if (window.ethereum) {
