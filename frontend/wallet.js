@@ -215,8 +215,14 @@ async function connectWallet() {
     // Initialize leaderboard client
     leaderboardClient = new LeaderboardClient(LEADERBOARD_API);
 
+    // Update UI immediately (before any alerts/modals)
     updateWalletStatus();
-    alert("✅ Wallet connected: " + userAddress.slice(0, 6) + "..." + userAddress.slice(-4));
+    console.log("✅ Wallet connected: " + userAddress.slice(0, 6) + "..." + userAddress.slice(-4));
+    
+    // Show alert after UI updates
+    setTimeout(() => {
+      alert("✅ Wallet connected: " + userAddress.slice(0, 6) + "..." + userAddress.slice(-4));
+    }, 100);
   } catch (error) {
     console.error("❌ Wallet connection failed:", error);
     alert("Failed to connect wallet: " + error.message);
@@ -280,19 +286,29 @@ function updateWalletStatus() {
   const statusEl = document.getElementById("wallet-status");
   const connectBtn = document.getElementById("connect");
   
+  console.log("Updating wallet status. Connected:", !!userAddress);
+  
+  if (!connectBtn) {
+    console.error("❌ Connect button not found in DOM!");
+    return;
+  }
+  
   if (userAddress) {
     // Update status display
     if (statusEl) {
-      statusEl.innerText = "✅ Connected: " + userAddress.slice(0, 6) + "..." + userAddress.slice(-4);
+      const displayAddress = userAddress.slice(0, 6) + "..." + userAddress.slice(-4);
+      statusEl.innerText = "✅ Connected: " + displayAddress;
       statusEl.style.color = "#00ff00";
+      console.log("Status updated to: Connected", displayAddress);
     }
     
     // Update button to show address and allow disconnect
-    if (connectBtn) {
-      connectBtn.innerText = `Disconnect (${userAddress.slice(0, 6)}...)`;
-      connectBtn.style.background = "#ff6b6b";
-      connectBtn.onclick = disconnectWallet;
-    }
+    const displayAddress = userAddress.slice(0, 6) + "..." + userAddress.slice(-4);
+    connectBtn.innerText = `Disconnect (${displayAddress})`;
+    connectBtn.style.background = "#ff6b6b";
+    connectBtn.style.color = "#ffffff";
+    connectBtn.onclick = disconnectWallet;
+    console.log("✅ Button updated to disconnect mode");
   } else {
     // Not connected - show connect button
     if (statusEl) {
@@ -300,12 +316,11 @@ function updateWalletStatus() {
       statusEl.style.color = "#888";
     }
     
-    if (connectBtn) {
-      connectBtn.innerText = "Connect Wallet";
-      connectBtn.style.background = "#00ff00";
-      connectBtn.style.color = "#000";
-      connectBtn.onclick = connectWallet;
-    }
+    connectBtn.innerText = "Connect Wallet";
+    connectBtn.style.background = "#00ff00";
+    connectBtn.style.color = "#000";
+    connectBtn.onclick = connectWallet;
+    console.log("✅ Button reset to connect mode");
   }
 }
 
